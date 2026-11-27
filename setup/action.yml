@@ -34,11 +34,17 @@ runs:
       run: |
         set -euo pipefail
         case "$RUNNER_ARCH" in X64) arch=x86_64 ;; ARM64) arch=aarch64 ;; esac
-        case "$RUNNER_OS" in Linux) target="$arch-unknown-linux-musl" ;; macOS) target="$arch-apple-darwin" ;; esac
+        url="https://github.com/casey/just/releases/download/$VERSION/just-$VERSION"
         dir="$RUNNER_TEMP/just-$VERSION"
         mkdir -p "$dir"
-        curl -sSfL "https://github.com/casey/just/releases/download/$VERSION/just-$VERSION-$target.tar.gz" \
-          | tar xz -C "$dir" just
+        case "$RUNNER_OS" in
+          Linux) curl -sSfL "$url-$arch-unknown-linux-musl.tar.gz" | tar xz -C "$dir" just ;;
+          macOS) curl -sSfL "$url-$arch-apple-darwin.tar.gz" | tar xz -C "$dir" just ;;
+          # Git Bash's tar can't read the zip.
+          Windows)
+            curl -sSfL -o "$dir/just.zip" "$url-$arch-pc-windows-msvc.zip"
+            pwsh -NoProfile -Command "Expand-Archive -Path '$dir/just.zip' -DestinationPath '$dir'" ;;
+        esac
         echo "$dir" >> "$GITHUB_PATH"
 
     - if: inputs.node-version != ''

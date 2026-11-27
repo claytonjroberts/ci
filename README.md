@@ -18,7 +18,7 @@ jobs:
       commands: '["just lint", "just type-check", "just test"]'
       # node-version: "22"           # also installs pnpm, pinned by package.json's packageManager
       # pnpm-dir: web                # where that package.json and pnpm-lock.yaml live
-      # runs-on: '["self-hosted", "studio-linux"]'
+      # runs-on: '["self-hosted", "linux"]'
       # sync: uv sync --locked --all-groups
 ```
 

@@ -6,11 +6,11 @@
 
 ## Context
 
-Clayton asked: "Can we standardize my CI into GH actions in a single repo for me to use please? Shnipper,
-claylib, mechometer, tickettantrum, and summoner should all use it", and claytonjroberts.com "needs CI".
+Clayton asked to standardize his CI into GitHub Actions in a single repo that all his repos use, and noted
+that claytonjroberts.com "needs CI".
 
-Before this repo, shnipper, mechometer and tickettantrum each carried their own `setup-just` action, and
-shnipper and summoner each had a `setup` action. They pinned different versions of setup-uv, setup-node,
+Before this repo, three repos each carried their own `setup-just` action, and two had their own `setup`
+action. They pinned different versions of setup-uv, setup-node,
 pnpm/action-setup and checkout. Every repo already runs its checks as `just <recipe>` (claylib uses
 `make`), so what they share is the toolchain plus "run these recipes". Their deploy jobs (Docker, Pulumi,
 migrations, desktop and iOS releases) have nothing in common beyond that.

@@ -1,0 +1,30 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  # This commit's setup action; checks.yml below runs the released one at v1.
+  setup:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: ./setup
+        with:
+          sync: ""
+      - run: just --version && uv --version
+
+  checks:
+    uses: ./.github/workflows/checks.yml
+    with:
+      commands: '["just --version"]'
+      sync: ""

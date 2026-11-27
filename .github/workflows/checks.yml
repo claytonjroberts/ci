@@ -1,0 +1,63 @@
+name: Checks
+
+# One job per command, each on a fresh checkout with the shared toolchain, plus actionlint over the caller's
+# workflows. A caller job that `needs` this one fails when any command does.
+on:
+  workflow_call:
+    inputs:
+      commands:
+        description: JSON array of shell commands, one job each, e.g. '["just lint", "just test"]'.
+        type: string
+        required: true
+      runs-on:
+        description: JSON runner label or array of labels.
+        type: string
+        default: '"ubuntu-latest"'
+      timeout-minutes:
+        type: number
+        default: 15
+      actionlint:
+        type: boolean
+        default: true
+      python-version:
+        type: string
+        default: ""
+      sync:
+        type: string
+        default: uv sync --locked
+      node-version:
+        type: string
+        default: ""
+      pnpm-dir:
+        type: string
+        default: .
+
+permissions:
+  contents: read
+
+jobs:
+  run:
+    name: ${{ matrix.command }}
+    runs-on: ${{ fromJSON(inputs.runs-on) }}
+    timeout-minutes: ${{ inputs.timeout-minutes }}
+    strategy:
+      fail-fast: false
+      matrix:
+        command: ${{ fromJSON(inputs.commands) }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: claytonjroberts/ci/setup@v1
+        with:
+          python-version: ${{ inputs.python-version }}
+          sync: ${{ inputs.sync }}
+          node-version: ${{ inputs.node-version }}
+          pnpm-dir: ${{ inputs.pnpm-dir }}
+      - run: ${{ matrix.command }}
+
+  actionlint:
+    if: inputs.actionlint
+    runs-on: ${{ fromJSON(inputs.runs-on) }}
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: raven-actions/actionlint@3d39aea434753780c3b3d4a1a31c854b4dbf49d7 # v2
